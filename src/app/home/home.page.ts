@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { NavController } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
 import { AlertController } from '@ionic/angular';
 
@@ -9,6 +8,7 @@ const { IdentitySdkPlugin } = Plugins;
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
+  standalone: false,
 })
 export class HomePage {
 

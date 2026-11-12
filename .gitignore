@@ -12,3 +12,6 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Angular CLI build cache
+/.angular/
