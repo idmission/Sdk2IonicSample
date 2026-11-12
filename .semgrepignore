@@ -1,0 +1,9 @@
+# Generated build output and vendored third-party bundles (Ionic, Swiper, core-js,
+# zone.js, webpack runtime). Not first-party code; findings there are not actionable.
+www/
+node_modules/
+android/app/src/main/assets/public/
+ios/App/App/public/
+ios/App/Pods/
+*.min.js
+*.js.map

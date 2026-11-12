@@ -15,9 +15,9 @@ class IDentitySDKHelper : NSObject{
   
     @IBAction func initializeSDK(call: CAPPluginCall){
 
-    let loginId = UserDefaults.standard.string(forKey: "loginId") ?? ""
-    let password = UserDefaults.standard.string(forKey: "password") ?? ""
-    let merchantId = UserDefaults.standard.string(forKey: "merchantId") ?? ""
+    let loginId = UserDefaults.loginId
+    let password = UserDefaults.password
+    let merchantId = UserDefaults.merchantId
     IDentitySDK.templateModelBaseURL = UserDefaults.templateModelBaseURL
     IDentitySDK.apiBaseURL = UserDefaults.apiBaseURL
     IDentitySDK.initializeSDK(loginId: loginId, password: password, merchantId: merchantId) { error in

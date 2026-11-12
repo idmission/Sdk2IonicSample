@@ -16,12 +16,11 @@ public class IdentitySdkPlugin: CAPPlugin {
     }
     
     @objc func idm_sdk_init(_ call: CAPPluginCall) {
-        let loginId: String = call.getString("username") ?? UserDefaults.loginId
-        UserDefaults.standard.set(String(loginId), forKey: "loginId")
-        let password: String = call.getString("password") ?? UserDefaults.password
-        UserDefaults.standard.set(String(password), forKey: "password")
-        let merchantId: String = call.getString("merchantID") ?? UserDefaults.merchantId
-        UserDefaults.standard.set(String(merchantId), forKey: "merchantId")
+        // Credentials are kept in the Keychain (see CredentialStore), never in UserDefaults.
+        UserDefaults.purgeLegacyCredentials()
+        UserDefaults.loginId = call.getString("username") ?? UserDefaults.loginId
+        UserDefaults.password = call.getString("password") ?? UserDefaults.password
+        UserDefaults.merchantId = call.getString("merchantID") ?? UserDefaults.merchantId
         IDentitySDKHelper().initializeSDK(call: call)
     }
     

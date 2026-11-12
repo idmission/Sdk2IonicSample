@@ -11,7 +11,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- MainActivity is the LAUNCHER entry point, so it must be exported (required
+             explicitly for targetSdk 31+). It handles no extras or deep links from callers.
+             Semgrep exported_activity (CWE-926): accepted, by design. -->
+        <!-- nosemgrep -->
         <activity
+            android:exported="true"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name="io.ionic.starter.MainActivity"
             android:label="@string/title_activity_main"
@@ -25,7 +30,9 @@
 
         </activity>
 
-      <activity android:name="io.ionic.starter.CallPluginActivity"/>
+      <activity
+            android:name="io.ionic.starter.CallPluginActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

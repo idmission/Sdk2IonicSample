@@ -1,0 +1,14 @@
+# Generated web build output (ng build) - regenerate with `npm run build && npx cap sync`
+/www/
+
+# Dependencies
+/node_modules/
+
+# Capacitor-copied web assets
+/android/app/src/main/assets/public/
+/ios/App/App/public/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

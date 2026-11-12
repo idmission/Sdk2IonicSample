@@ -5,6 +5,8 @@
 //  Created by Stefan Kaczmarek on 10/23/21.
 //
 
+import Foundation
+import Security
 import IDentitySDK_Swift
 
 struct ServiceOptions: Codable {
@@ -61,22 +63,30 @@ extension UserDefaults {
         set { standard.set(newValue, forKey: apiBaseURLKey) }
     }
 
+    // Credentials are sensitive and are stored in the Keychain, not in UserDefaults (CWE-311).
     private static let loginIdKey = "loginId"
     static var loginId: String {
-        get { standard.string(forKey: loginIdKey) ?? defaultLoginId }
-        set { standard.set(newValue, forKey: loginIdKey) }
+        get { CredentialStore.read(loginIdKey) ?? defaultLoginId }
+        set { CredentialStore.write(newValue, for: loginIdKey) }
     }
 
     private static let passwordKey = "password"
     static var password: String {
-        get { standard.string(forKey: passwordKey) ?? defaultPassword }
-        set { standard.set(newValue, forKey: passwordKey) }
+        get { CredentialStore.read(passwordKey) ?? defaultPassword }
+        set { CredentialStore.write(newValue, for: passwordKey) }
     }
 
     private static let merchantIdKey = "merchantId"
     static var merchantId: String {
-        get { standard.string(forKey: merchantIdKey) ?? defaultMerchantId }
-        set { standard.set(newValue, forKey: merchantIdKey) }
+        get { CredentialStore.read(merchantIdKey) ?? defaultMerchantId }
+        set { CredentialStore.write(newValue, for: merchantIdKey) }
+    }
+
+    /// Removes any credentials persisted in plain text by earlier versions of the app.
+    static func purgeLegacyCredentials() {
+        for key in [loginIdKey, passwordKey, merchantIdKey] {
+            standard.removeObject(forKey: key)
+        }
     }
 
     // MARK: - Service Options
@@ -109,5 +119,37 @@ extension UserDefaults {
     static var capture4K: Bool {
         get { standard.bool(forKey: capture4KKey) }
         set { standard.set(newValue, forKey: capture4KKey) }
+    }
+}
+
+// MARK: - Keychain-backed credential storage
+
+enum CredentialStore {
+    private static let service = (Bundle.main.bundleIdentifier ?? "io.ionic.starter") + ".credentials"
+
+    private static func baseQuery(_ key: String) -> [String: Any] {
+        [kSecClass as String: kSecClassGenericPassword,
+         kSecAttrService as String: service,
+         kSecAttrAccount as String: key]
+    }
+
+    static func read(_ key: String) -> String? {
+        var query = baseQuery(key)
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var item: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
+              let data = item as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    static func write(_ value: String, for key: String) {
+        let query = baseQuery(key)
+        SecItemDelete(query as CFDictionary)
+        guard !value.isEmpty, let data = value.data(using: .utf8) else { return }
+        var attributes = query
+        attributes[kSecValueData as String] = data
+        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        SecItemAdd(attributes as CFDictionary, nil)
     }
 }
